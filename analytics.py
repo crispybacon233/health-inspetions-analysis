@@ -41,13 +41,8 @@ def _():
 
 
 @app.cell
-def _():
-    return
-
-
-@app.cell
-def _(category_filter_str, df, pl, plt, sns):
-    _temp_df = (
+def _(category_filter_str, df, pl):
+    category_agg = (
         df
         .group_by('category')
         .agg(
@@ -57,15 +52,24 @@ def _(category_filter_str, df, pl, plt, sns):
             median_score=pl.col('score').median(),
         )
         .filter(pl.col('count') >= 15)
-        .filter(~pl.col('category').str.contains(category_filter_str))
+        .filter(~pl.col('category').str.contains(category_filter_str)) # filter out school, community, care, etc.
         .sort(by='avg_score')
-        .select('avg_score', 'std_score')
     )
+    return (category_agg,)
 
-    sns.regplot(data=_temp_df, x='std_score', y='avg_score')
+
+@app.cell
+def _(category_agg, plt, sns):
+    sns.regplot(data=category_agg, x='std_score', y='avg_score')
     plt.xlabel('Standard Dev')
     plt.ylabel('Avg Inspection Score')
     plt.title('Inspection Score: Mean vs Stdev Correlation')
+    return
+
+
+@app.cell
+def _(category_agg):
+    category_agg
     return
 
 

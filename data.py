@@ -127,16 +127,29 @@ def _(pl, road_names):
 
 
 @app.cell
-def _():
-    return
-
-
-@app.cell
 def _(pl, road_names):
     (
         road_names
         .filter(pl.col('FULLNAME').str.contains('I-'))
     )
+    return
+
+
+@app.cell
+def _(pl, road_names):
+    road_names.filter(pl.col('FULLNAME').str.contains('183'))
+    return
+
+
+@app.cell
+def _(pl, road_names):
+    road_names.filter(pl.col('FULLNAME').str.contains('State Loop'))
+    return
+
+
+@app.cell
+def _(pl, road_names):
+    road_names.filter(pl.col('FULLNAME').str.contains('Tx'))
     return
 
 
@@ -155,6 +168,11 @@ def _(conn, gpd, shapely):
         * EXCLUDE (geom),
         ST_AsWKB(geom) AS geometry_wkb
     FROM 'data/roads/tl_2025_48453_roads.shp'
+    WHERE FULLNAME LIKE '%Hwy'
+        OR FULLNAME LIKE '%Hwy%'
+        OR FULLNAME LIKE 'I-%'
+        OR FULLNAME LIKE 'State Loop%'
+        OR FULLNAME LIKE 'Tx%'
     """).df()
 
     geo_df["geometry"] = shapely.from_wkb(
@@ -167,6 +185,12 @@ def _(conn, gpd, shapely):
         crs="EPSG:4326",
     )
     return (roads_gdf,)
+
+
+@app.cell
+def _(roads_gdf):
+    roads_gdf
+    return
 
 
 @app.cell
